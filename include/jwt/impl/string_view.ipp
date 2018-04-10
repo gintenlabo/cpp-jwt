@@ -331,7 +331,7 @@ namespace std {
   {
     size_t operator()(const jwt::string_view& sv) const
     {
-      return jwt::hash_bytes((void*)sv.data(), sv.length(), static_cast<size_t>(0xc70f6907UL));
+      return jwt::hash_bytes(sv.data(), sv.length(), static_cast<size_t>(0xc70f6907UL));
     }
   };
 }

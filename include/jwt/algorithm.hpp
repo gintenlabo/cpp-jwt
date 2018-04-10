@@ -522,7 +522,7 @@ private:
   {
     if (pr != nullptr) *pr = sig->r;
     if (ps != nullptr) *ps = sig->s;
-  };
+  }
 
   /**
    */

@@ -96,7 +96,7 @@ verify_result_t PEMSign<Hasher>::verify(
   std::string dec_sig = base64_uri_decode(jwt_sign.data(), jwt_sign.length());
 
   BIO_uptr bufkey{
-      BIO_new_mem_buf((void*)key.data(), key.length()),
+      BIO_new_mem_buf(key.data(), key.length()),
       bio_deletor};
 
   if (!bufkey) {
@@ -142,8 +142,8 @@ verify_result_t PEMSign<Hasher>::verify(
       return { false, ec };
     }
 
-    BIGNUM* ec_sig_r = BN_bin2bn((unsigned char*)dec_sig.data(), bn_len, nullptr);
-    BIGNUM* ec_sig_s = BN_bin2bn((unsigned char*)dec_sig.data() + bn_len, bn_len, nullptr);
+    BIGNUM* ec_sig_r = BN_bin2bn(reinterpret_cast<const unsigned char*>(dec_sig.data()), bn_len, nullptr);
+    BIGNUM* ec_sig_s = BN_bin2bn(reinterpret_cast<const unsigned char*>(dec_sig.data()) + bn_len, bn_len, nullptr);
 
     if (!ec_sig_r || !ec_sig_s) {
       ec = AlgorithmErrc::VerificationErr;
@@ -181,7 +181,7 @@ verify_result_t PEMSign<Hasher>::verify(
   }
 
   if (EVP_DigestVerifyFinal(
-        mdctx_ptr.get(), (unsigned char*)&dec_sig[0], dec_sig.length()) != 1) {
+        mdctx_ptr.get(), reinterpret_cast<unsigned char*>(&dec_sig[0]), dec_sig.length()) != 1) {
     ec = AlgorithmErrc::VerificationErr;
     return { false, ec };
   }
@@ -197,7 +197,7 @@ EVP_PKEY* PEMSign<Hasher>::load_key(
   ec.clear();
 
   BIO_uptr bio_ptr{
-      BIO_new_mem_buf((void*)key.data(), key.length()), 
+      BIO_new_mem_buf(key.data(), key.length()), 
       bio_deletor};
 
   if (!bio_ptr) {
@@ -259,7 +259,7 @@ std::string PEMSign<Hasher>::evp_digest(
   sign.resize(len);
 
   //Get the signature
-  if (EVP_DigestSignFinal(mdctx_ptr.get(), (unsigned char*)&sign[0], &len) != 1) {
+  if (EVP_DigestSignFinal(mdctx_ptr.get(), reinterpret_cast<unsigned char*>(&sign[0]), &len) != 1) {
     ec = AlgorithmErrc::SigningErr;
     return {};
   }
@@ -292,7 +292,7 @@ std::string PEMSign<Hasher>::public_key_ser(
   auto char_ptr = &sign[0];
 
   EC_SIG_uptr ec_sig{d2i_ECDSA_SIG(nullptr,
-                                   (const unsigned char**)&char_ptr,
+                                   reinterpret_cast<const unsigned char**>(&char_ptr),
                                    sign.length()),
                      ec_sig_deletor};
 
@@ -318,8 +318,8 @@ std::string PEMSign<Hasher>::public_key_ser(
   auto buf_len = 2 * bn_len;
   new_sign.resize(buf_len);
 
-  BN_bn2bin(ec_sig_r, (unsigned char*)&new_sign[0] + bn_len - r_len);
-  BN_bn2bin(ec_sig_s, (unsigned char*)&new_sign[0] + buf_len - s_len);
+  BN_bn2bin(ec_sig_r, reinterpret_cast<unsigned char*>(&new_sign[0]) + bn_len - r_len);
+  BN_bn2bin(ec_sig_s, reinterpret_cast<unsigned char*>(&new_sign[0]) + buf_len - s_len);
 
   return new_sign;
 }
