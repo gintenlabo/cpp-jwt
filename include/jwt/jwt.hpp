@@ -58,13 +58,13 @@ enum class type
  * Converts a string representing a value of type
  * `enum class type` into its actual type.
  */
-enum type str_to_type(const jwt::string_view typ) noexcept
+enum type str_to_type(const jwt::string_view typ)
 {
   assert (typ.length() && "Empty type string");
 
   if (!strcasecmp(typ.data(), "jwt")) return type::JWT;
 
-  assert (0 && "Code not reached");
+  throw std::runtime_error("unknown type name");
 }
 
 

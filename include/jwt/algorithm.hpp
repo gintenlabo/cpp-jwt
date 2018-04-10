@@ -242,7 +242,7 @@ jwt::string_view alg_to_str(enum algorithm alg) noexcept
  * Convert stringified algorithm to enum class.
  * The string comparison is case insesitive.
  */
-enum algorithm str_to_alg(const jwt::string_view alg) noexcept
+enum algorithm str_to_alg(const jwt::string_view alg)
 {
   if (!alg.length()) return algorithm::NONE;
 
@@ -257,7 +257,7 @@ enum algorithm str_to_alg(const jwt::string_view alg) noexcept
   if (!strcasecmp(alg.data(), "es384")) return algorithm::ES384;
   if (!strcasecmp(alg.data(), "es512")) return algorithm::ES512;
 
-  assert (0 && "Code not reached");
+  throw std::runtime_error("unknown algorithm name");
 }
 
 /**
