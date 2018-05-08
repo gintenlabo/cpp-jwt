@@ -850,8 +850,8 @@ public: // 'tors
    * containers which models `MappingConcept` (see `meta::is_mapping_concept`)
    * to populate header. Not much useful unless JWE is supported.
    */
-  template <typename... Args>
-  jwt_object(Args&&... args);
+  template <typename T, typename... Args>
+  jwt_object(T&& x, Args&&... args);
 
 public: // Exposed static APIs
   /**
