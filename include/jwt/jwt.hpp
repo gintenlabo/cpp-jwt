@@ -37,6 +37,7 @@ SOFTWARE.
 #include "jwt/parameters.hpp"
 #include "jwt/exceptions.hpp"
 #include "jwt/json/json.hpp"
+#include "jwt/strcasecmp.hpp"
 
 // For convenience
 using json_t = nlohmann::json;
